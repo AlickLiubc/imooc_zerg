@@ -19,23 +19,41 @@ use think\Controller;
 class Address extends Controller
 {
     protected $beforeActionList = [
-        'first' => 'only:second,third'
+        'checkPrimaryScope' => [ 'only' => 'createOrUpdateAddress' ]
     ];
 
-    protected function first()
+    protected function checkPrimaryScope()
     {
-        echo 'first';
+        $scope = TokenService::getCurrentTokenVar('scope');
+        if ( $scope ) {
+            if ( $scope >= ScopeEnum::User ) {
+                return true;
+            } else {
+                throw new ForbiddenException();
+            }
+        } else {
+            throw new TokenException();
+        }
     }
 
-    public function second()
-    {
-        echo 'second';
-    }
-
-    public function third()
-    {
-        echo 'third';
-    }
+//    protected $beforeActionList = [
+//        'first' => [ 'only => 'second,third' ]
+//    ];
+//
+//    protected function first()
+//    {
+//        echo 'first';
+//    }
+//
+//    public function second()
+//    {
+//        echo 'second';
+//    }
+//
+//    public function third()
+//    {
+//        echo 'third';
+//    }
 
     public function createOrUpdateAddress()
     {
