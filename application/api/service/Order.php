@@ -8,10 +8,13 @@
 
 namespace app\api\service;
 
+use app\api\model\OrderProduct;
 use app\api\model\Product;
 use app\api\model\UserAddress;
 use app\lib\exception\OrderException;
 use app\lib\exception\UserException;
+use app\api\model\Order as OrderModel;
+use think\Exception;
 
 class Order
 {
@@ -40,6 +43,53 @@ class Order
 
         // 开始创建订单
         $orderSnap = $this->snapOrder($status);
+
+        $order = $this->createOrder($orderSnap);
+        $order['status'] = true;
+        return $order;
+    }
+
+    private function createOrder($snap)
+    {
+        try {
+            $orderNo = self::makeOrderNo();
+            $order = new OrderModel();
+            $order->order_no = $orderNo;
+            $order->user_id = $this->uid;
+            $order->total_price = $snap['orderPrice'];
+            $order->snap_img = $snap['snapImg'];
+            $order->snap_name = $snap['snapName'];
+            $order->snap_items = json_encode($snap['pStatus']);
+            $order->snap_address = $snap['snapAddress'];
+            $order->save();
+
+            $orderID = $order->id;
+            $create_time = $order->create_time;
+            foreach ( $this->oProducts as &$p ) {
+                $p['order_id'] = $orderID;
+            }
+
+            $orderProduct = new OrderProduct();
+            $orderProduct->saveAll($this->oProducts);
+
+            return [
+                'order_id' => $orderID,
+                'order_no' => $orderNo,
+                'create_time' => $create_time
+            ];
+        } catch ( Exception $ex ) {
+            throw $ex;
+        }
+    }
+
+    public static function makeOrderNo()
+    {
+        $yCode = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J');
+
+        $orderSn = $yCode[intval(date('Y') - 2017)] . strtoupper(dechx(date('m'))) . date('d')
+                    . substr(time(), -5) . substr(microtime(), 2, 5) .sprintf('%02d', rand(0, 99));
+
+        return $orderSn;
     }
 
     // 生成订单快照
@@ -48,8 +98,8 @@ class Order
         $snap = [
             'orderPrice' => 0,
             'totalCount' => 0,
-            'pStatus' => null,
-            'snapAddress' => '',
+            'pStatus' => [],
+            'snapAddress' => null,
             'snapName' => '',
             'snapImg' => ''
         ];
