@@ -23,7 +23,7 @@ class OrderPlace extends BaseValidate
 
     protected function checkProducts( $values )
     {
-        if ( is_array($values) ) {
+        if ( !is_array($values) ) {
             throw new ParameterException([
                 'msg' => '商品参数不能为空'
             ]);

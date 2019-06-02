@@ -59,6 +59,7 @@ class Order
             $order->total_price = $snap['orderPrice'];
             $order->snap_img = $snap['snapImg'];
             $order->snap_name = $snap['snapName'];
+            $order->total_count = $snap['totalCount'];
             $order->snap_items = json_encode($snap['pStatus']);
             $order->snap_address = $snap['snapAddress'];
             $order->save();
@@ -86,8 +87,8 @@ class Order
     {
         $yCode = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J');
 
-        $orderSn = $yCode[intval(date('Y') - 2017)] . strtoupper(dechx(date('m'))) . date('d')
-                    . substr(time(), -5) . substr(microtime(), 2, 5) .sprintf('%02d', rand(0, 99));
+        $orderSn = $yCode[intval(date('Y') - 2017)] . strtoupper(dechex(date('m'))) . date('d')
+                    . substr(time(), -5) . substr(microtime(), 2, 5) . sprintf('%02d', rand(0, 99));
 
         return $orderSn;
     }
@@ -114,6 +115,8 @@ class Order
         if ( count(  $this->products ) > 1 ) {
             $snap['snapName'] .= '等';
         }
+
+        return $snap;
     }
 
     private function getUserAddress()
@@ -121,7 +124,7 @@ class Order
         $userAddress = UserAddress::where('user_id', '=', $this->uid)
                                 ->find();
 
-        if ( $userAddress ) {
+        if ( !$userAddress ) {
             throw new UserException([
                 'msg' => '用户地址不存在，下单失败！',
                 'code' => 60001
@@ -183,17 +186,13 @@ class Order
         } else {
             $product = $products[$pIndex];
 
-            $pStatus = [
-                'id' => $product['id'],
-                'count' => $oCount,
-                'name' => $product['name'],
-                'totalPrice' => $product['price'] * $oCount
-            ];
+            $pStatus['id'] = $product['id'];
+            $pStatus['count'] = $oCount;
+            $pStatus['name'] = $product['name'];
+            $pStatus['totalPrice'] =$product['price'] * $oCount;
 
             if ( $product['stock'] - $oCount >= 0 ) {
-                $pStatus = [
-                    'haveStock' => true
-                ];
+                $pStatus['haveStock'] = true;
             }
         }
 
