@@ -140,11 +140,11 @@ class Order
 
     public function checkOrderStock($orderID)
     {
-        $oProducts = OrderProduct::where('id', '=', $orderID)
+        $oProducts = OrderProduct::where('order_id', '=', $orderID)
                                 ->select();
 
         $this->oProducts = $oProducts;
-        $this->products = $this->getProductsByOrder( $this->oProducts );
+        $this->products = $this->getProductsByOrder( $oProducts );
 
         $status = $this->getOrderStatus();
 
@@ -206,7 +206,7 @@ class Order
             $pStatus['id'] = $product['id'];
             $pStatus['count'] = $oCount;
             $pStatus['name'] = $product['name'];
-            $pStatus['totalPrice'] =$product['price'] * $oCount;
+            $pStatus['totalPrice'] = $product['price'] * $oCount;
 
             if ( $product['stock'] - $oCount >= 0 ) {
                 $pStatus['haveStock'] = true;
