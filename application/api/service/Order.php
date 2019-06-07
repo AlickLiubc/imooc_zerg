@@ -141,7 +141,7 @@ class Order
     public function checkOrderStock($orderID)
     {
         $oProducts = OrderProduct::where('id', '=', $orderID)
-            ->select();
+                                ->select();
 
         $this->oProducts = $oProducts;
         $this->products = $this->getProductsByOrder( $this->oProducts );
@@ -150,7 +150,7 @@ class Order
 
         return $status;
     }
-    
+
     private function getOrderStatus()
     {
         $status = [
