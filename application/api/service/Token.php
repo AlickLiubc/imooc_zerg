@@ -85,4 +85,17 @@ class Token
             throw new TokenException();
         }
     }
+
+    public static function isValidOperate($checkedUID)
+    {
+        if ( !$checkedUID ) {
+            throw new Exception('检查UID时必须放入一个被检查的UID');
+        }
+
+        if ( $checkedUID == self::getCurrentUid() ) {
+            return true;
+        }
+
+        return false;
+    }
 }

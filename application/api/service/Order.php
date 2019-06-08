@@ -116,7 +116,7 @@ class Order
         $snap['snapName'] = $this->products[0]['name'];
         $snap['snapImg'] = $this->products[0]['main_img_url'];
 
-        if ( count(  $this->products ) > 1 ) {
+        if ( count( $this->products ) > 1 ) {
             $snap['snapName'] .= '等';
         }
 
