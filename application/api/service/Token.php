@@ -29,6 +29,13 @@ class Token
         return md5($randChars . $timestamp . $salt);
     }
 
+    public static function verifyToken($token)
+    {
+        $vars = Cache::get($token);
+       
+        return $vars ? true : false;
+    }
+
     public static function getCurrentTokenVar($key)
     {
         $token = Request::instance()->header('token');
